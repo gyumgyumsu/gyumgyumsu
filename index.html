@@ -50,4 +50,429 @@
                         <i class="ph ph-eye text-lg"></i>
                         <span>웹사이트 보기</span>
                     </button>
-                    <button id="tab-
+                    <button id="tab-upload-btn" onclick="switchTab('upload')" class="flex-1 sm:flex-none flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap">
+                        <i class="ph ph-upload-simple text-lg"></i>
+                        <span>업로드 및 설정</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- 탭 1: 최신 웹사이트 보기 -->
+        <section id="section-viewer" class="space-y-4">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-center sm:justify-start">
+                    <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span>라이브 동기화 중</span>
+                    </span>
+                    <span id="viewer-filename-badge" class="text-xs text-slate-500 truncate max-w-[150px] sm:max-w-xs"></span>
+                </div>
+                
+                <div class="flex items-center w-full sm:w-auto gap-2">
+                    <button onclick="reloadIframe()" class="flex-1 sm:flex-none flex justify-center items-center space-x-1 px-3 py-2 sm:py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition-colors bg-slate-50 sm:bg-transparent">
+                        <i class="ph ph-arrows-clockwise text-sm"></i>
+                        <span>새로고침</span>
+                    </button>
+                    <button onclick="openInNewTab()" class="flex-1 sm:flex-none flex justify-center items-center space-x-1 px-3 py-2 sm:py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg transition-colors bg-blue-50/50 sm:bg-transparent whitespace-nowrap">
+                        <i class="ph ph-arrow-square-out text-sm"></i>
+                        <span>새 창 열기</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[550px] relative">
+                <iframe id="live-frame" class="preview-iframe hidden" title="최신 웹사이트 미리보기"></iframe>
+                
+                <div id="empty-state" class="p-8 sm:p-12 text-center flex flex-col items-center justify-center min-h-[500px]">
+                    <div class="p-4 bg-slate-100 text-slate-400 rounded-full mb-4 shrink-0">
+                        <i class="ph ph-browser text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg text-slate-700 mb-2">저장된 웹사이트가 없습니다</h3>
+                    <p class="text-xs sm:text-sm text-slate-400 mb-6 max-w-sm">
+                        상단의 <strong>'업로드 및 설정'</strong> 메뉴로 이동하여 HTML 파일을 등록하거나 드라이브 동기화를 시작해 보세요.
+                    </p>
+                    <button onclick="switchTab('upload')" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors shadow-sm flex items-center justify-center space-x-2 w-full sm:w-auto">
+                        <i class="ph ph-upload-simple text-lg"></i>
+                        <span>업로드 하러 가기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 2: 업로드 및 설정 화면 -->
+        <section id="section-upload" class="hidden space-y-6">
+            <div class="bg-white p-5 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-base text-slate-800 mb-4">새 웹사이트 HTML 업로드</h2>
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-6 sm:p-8 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50/50 flex flex-col items-center justify-center min-h-[200px]">
+                    <div class="p-4 bg-blue-50 text-blue-500 rounded-full mb-3 shrink-0">
+                        <i class="ph ph-cloud-arrow-up text-4xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-700 mb-1">여기에 새 HTML 파일을 드래그 앤 드롭하세요</p>
+                    <p class="text-xs text-slate-400 mb-5">또는 파일 탐색기에서 직접 선택 (.html 지원)</p>
+                    <input type="file" id="file-input" accept=".html,.htm" class="hidden">
+                    <button onclick="document.getElementById('file-input').click()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors w-full sm:w-auto">
+                        컴퓨터에서 파일 선택
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2 sm:gap-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="ph ph-info text-xl text-slate-600"></i>
+                        <h2 class="text-base text-slate-800">현재 적용된 웹사이트 정보</h2>
+                    </div>
+                    <span class="px-2.5 py-1 text-xs bg-slate-100 text-slate-600 rounded-full self-start sm:self-auto">로컬 및 클라우드 동기화 됨</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-100 pt-4 text-sm">
+                    <div class="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg sm:rounded-none">
+                        <span class="text-xs text-slate-400 block mb-1">파일명</span>
+                        <span id="info-filename" class="text-slate-700 break-all">저장된 파일 없음</span>
+                    </div>
+                    <div class="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg sm:rounded-none">
+                        <span class="text-xs text-slate-400 block mb-1">최종 변경 일시</span>
+                        <span id="info-updated" class="text-slate-700">-</span>
+                    </div>
+                    <div class="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg sm:rounded-none">
+                        <span class="text-xs text-slate-400 block mb-1">파일 용량</span>
+                        <span id="info-size" class="text-slate-700">-</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2 sm:space-x-3 sm:gap-0 mt-6 pt-4 border-t border-slate-100">
+                    <button onclick="switchTab('viewer')" class="px-4 py-2.5 sm:py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+                        <i class="ph ph-eye text-lg"></i>
+                        <span>지금 적용된 사이트 보기</span>
+                    </button>
+                    <button onclick="clearStorageData()" class="px-4 py-2.5 sm:py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+                        <i class="ph ph-trash text-lg"></i>
+                        <span>로컬 데이터 삭제</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 sm:p-6 cursor-pointer flex justify-between items-center bg-slate-50/50 hover:bg-slate-50 transition-colors" onclick="toggleDriveConfig()">
+                    <div class="flex items-start sm:items-center space-x-3">
+                        <i class="ph ph-google-drive-logo text-2xl text-emerald-600 mt-0.5 sm:mt-0"></i>
+                        <div>
+                            <h3 class="text-sm text-slate-800 font-medium">구글 드라이브 동기화 설정</h3>
+                            <p class="text-xs text-slate-500 mt-1 sm:mt-0">스마트폰 등 다른 디바이스와 자동 백업이 필요할 때 설정합니다.</p>
+                        </div>
+                    </div>
+                    <i id="drive-chevron" class="ph ph-caret-down text-lg text-slate-400 transition-transform duration-200 shrink-0 ml-2"></i>
+                </div>
+
+                <div id="drive-config-panel" class="hidden p-5 sm:p-6 border-t border-slate-200 space-y-4">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-600 mb-1">Google API Client ID</label>
+                            <input type="text" id="gdrive-client-id" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                            <button onclick="saveDriveCredentials()" class="px-4 py-2.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+                                <i class="ph ph-arrows-clockwise text-lg"></i>
+                                <span>저장 및 동기화 시작</span>
+                            </button>
+                            <button onclick="disconnectDrive()" class="px-4 py-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm rounded-lg transition-colors w-full sm:w-auto">
+                                설정 초기화
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 알림 메시지 모달 토스트 -->
+    <div id="toast-modal" class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none flex items-center space-x-2 z-50 max-w-[90%] sm:max-w-none">
+        <i id="toast-icon" class="ph ph-check-circle text-lg text-emerald-400 shrink-0"></i>
+        <span id="toast-message" class="break-all sm:break-normal">알림 내용</span>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script>
+        const STORAGE_KEY_HTML = 'hosted_html_content';
+        const STORAGE_KEY_META = 'hosted_html_metadata';
+        const STORAGE_KEY_DRIVE = 'hosted_drive_credentials';
+
+        let currentHtmlContent = '';
+        let tokenClient;
+        let gdriveAccessToken = null;
+        const GDRIVE_FILENAME = 'live_viewer_sync.html'; 
+
+        window.onload = function () {
+            setupDragAndDrop();
+            setupFileInput();
+            loadSavedData();
+            loadDriveCredentials();
+            switchTab('viewer');
+        };
+
+        function switchTab(tabName) {
+            const viewerTabBtn = document.getElementById('tab-viewer-btn');
+            const uploadTabBtn = document.getElementById('tab-upload-btn');
+            const viewerSection = document.getElementById('section-viewer');
+            const uploadSection = document.getElementById('section-upload');
+
+            if (tabName === 'viewer') {
+                viewerTabBtn.className = 'flex-1 sm:flex-none flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm whitespace-nowrap';
+                uploadTabBtn.className = 'flex-1 sm:flex-none flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap';
+                viewerSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+                renderLiveViewer();
+            } else {
+                uploadTabBtn.className = 'flex-1 sm:flex-none flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm whitespace-nowrap';
+                viewerTabBtn.className = 'flex-1 sm:flex-none flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap';
+                uploadSection.classList.remove('hidden');
+                viewerSection.classList.add('hidden');
+            }
+        }
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-active'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-active'), false);
+            });
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) processFile(files[0]);
+            }, false);
+        }
+
+        function setupFileInput() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', function () {
+                if (this.files.length > 0) processFile(this.files[0]);
+            });
+        }
+
+        function processFile(file) {
+            if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+                showToast('HTML 파일만 업로드할 수 있습니다.', 'ph-warning');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const metadata = { filename: file.name, size: formatFileSize(file.size), updatedAt: new Date().toLocaleString('ko-KR') };
+                try {
+                    localStorage.setItem(STORAGE_KEY_HTML, content);
+                    localStorage.setItem(STORAGE_KEY_META, JSON.stringify(metadata));
+                    currentHtmlContent = content;
+                    updateInfoUI(metadata);
+                    uploadToDrive(content);
+                    showToast('웹사이트가 업로드되었습니다!');
+                    setTimeout(() => switchTab('viewer'), 800);
+                } catch (err) {
+                    showToast('용량이 너무 커서 저장하지 못했습니다.', 'ph-warning');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function authenticateDrive() {
+            const driveRaw = localStorage.getItem(STORAGE_KEY_DRIVE);
+            if (!driveRaw) {
+                showToast('먼저 Client ID를 저장해주세요.', 'ph-warning');
+                return;
+            }
+            const driveData = JSON.parse(driveRaw);
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: driveData.clientId,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (tokenResponse) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        gdriveAccessToken = tokenResponse.access_token;
+                        showToast('구글 드라이브 연결됨. 동기화를 시작합니다.');
+                        downloadFromDrive();
+                    }
+                },
+            });
+            tokenClient.requestAccessToken();
+        }
+
+        async function uploadToDrive(content) {
+            if (!gdriveAccessToken) return;
+            showToast('구글 드라이브에 백업하는 중...', 'ph-spinner animate-spin');
+            const metadata = { name: GDRIVE_FILENAME, mimeType: 'text/html' };
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', new Blob([content], { type: 'text/html' }));
+            try {
+                await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + gdriveAccessToken },
+                    body: form
+                });
+                showToast('구글 드라이브 백업 완료!');
+            } catch (e) {
+                showToast('구글 드라이브 업로드 실패', 'ph-warning');
+            }
+        }
+
+        async function downloadFromDrive() {
+            if (!gdriveAccessToken) return;
+            try {
+                const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${GDRIVE_FILENAME}' and trashed=false`, {
+                    headers: { 'Authorization': 'Bearer ' + gdriveAccessToken }
+                });
+                const searchData = await searchRes.json();
+                if (searchData.files && searchData.files.length > 0) {
+                    const fileId = searchData.files[0].id;
+                    const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                        headers: { 'Authorization': 'Bearer ' + gdriveAccessToken }
+                    });
+                    const content = await fileRes.text();
+                    localStorage.setItem(STORAGE_KEY_HTML, content);
+                    currentHtmlContent = content;
+                    const meta = { filename: '구글 드라이브 동기화 파일', size: formatFileSize(content.length), updatedAt: new Date().toLocaleString('ko-KR') };
+                    localStorage.setItem(STORAGE_KEY_META, JSON.stringify(meta));
+                    updateInfoUI(meta);
+                    renderLiveViewer();
+                    switchTab('viewer');
+                    showToast('드라이브에서 최신 웹사이트를 가져왔습니다!');
+                } else {
+                    showToast('드라이브에 동기화 된 파일이 없습니다.');
+                }
+            } catch (e) {
+                showToast('드라이브 동기화 실패', 'ph-warning');
+            }
+        }
+
+        function loadSavedData() {
+            const metaRaw = localStorage.getItem(STORAGE_KEY_META);
+            const contentRaw = localStorage.getItem(STORAGE_KEY_HTML);
+            if (metaRaw && contentRaw) {
+                const metadata = JSON.parse(metaRaw);
+                currentHtmlContent = contentRaw;
+                updateInfoUI(metadata);
+            }
+        }
+
+        function updateInfoUI(meta) {
+            document.getElementById('info-filename').textContent = meta.filename;
+            document.getElementById('info-updated').textContent = meta.updatedAt;
+            document.getElementById('info-size').textContent = meta.size;
+            const badge = document.getElementById('viewer-filename-badge');
+            badge.textContent = `(파일: ${meta.filename})`;
+            badge.title = meta.filename;
+        }
+
+        function renderLiveViewer() {
+            const iframe = document.getElementById('live-frame');
+            const emptyState = document.getElementById('empty-state');
+            if (currentHtmlContent && currentHtmlContent.trim() !== '') {
+                iframe.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                iframe.srcdoc = currentHtmlContent;
+            } else {
+                iframe.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        function reloadIframe() {
+            renderLiveViewer();
+            showToast('웹사이트를 새로고침했습니다.');
+        }
+
+        function openInNewTab() {
+            if (!currentHtmlContent) {
+                showToast('열 수 있는 내용이 없습니다.', 'ph-warning');
+                return;
+            }
+            const blob = new Blob([currentHtmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        function clearStorageData() {
+            localStorage.removeItem(STORAGE_KEY_HTML);
+            localStorage.removeItem(STORAGE_KEY_META);
+            currentHtmlContent = '';
+            document.getElementById('info-filename').textContent = '저장된 파일 없음';
+            document.getElementById('info-updated').textContent = '-';
+            document.getElementById('info-size').textContent = '-';
+            document.getElementById('viewer-filename-badge').textContent = '';
+            renderLiveViewer();
+            showToast('로컬에 저장된 데이터가 삭제되었습니다.');
+        }
+
+        function loadDriveCredentials() {
+            const driveRaw = localStorage.getItem(STORAGE_KEY_DRIVE);
+            if (driveRaw) {
+                const driveData = JSON.parse(driveRaw);
+                if (driveData.clientId) {
+                    document.getElementById('gdrive-client-id').value = driveData.clientId;
+                }
+            }
+        }
+
+        function saveDriveCredentials() {
+            const clientId = document.getElementById('gdrive-client-id').value.trim();
+            if (!clientId) {
+                showToast('Client ID를 입력해주세요.', 'ph-warning');
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY_DRIVE, JSON.stringify({ clientId }));
+            showToast('Client ID가 저장되었습니다.');
+            authenticateDrive();
+        }
+
+        function disconnectDrive() {
+            localStorage.removeItem(STORAGE_KEY_DRIVE);
+            document.getElementById('gdrive-client-id').value = '';
+            gdriveAccessToken = null;
+            showToast('연동 설정이 초기화되었습니다.');
+        }
+
+        function toggleDriveConfig() {
+            const panel = document.getElementById('drive-config-panel');
+            const chevron = document.getElementById('drive-chevron');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                panel.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showToast(message, iconClass = 'ph-check-circle') {
+            const toast = document.getElementById('toast-modal');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            toastMsg.textContent = message;
+            toastIcon.className = `ph ${iconClass} text-lg text-emerald-400 shrink-0`;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
