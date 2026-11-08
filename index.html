@@ -1,314 +1,437 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>작은책상전시 - Tiny Desk Exhibition</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              bg: '#F3F5F8',
-              card: '#FFFFFF',
-              darkCard: '#0F172A',
-              blue: '#0055FF',
-              lightBlue: '#EBF2FF',
-              lime: '#C4F039',
-              textPrimary: '#0F172A',
-              textSecondary: '#64748B',
-              textMuted: '#94A3B8',
-              border: '#E2E8F0'
-            }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹사이트 HTML 업로더 & 라이브 뷰어</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons CDN -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* 글로벌 폰트 및 가독성 설정 */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-weight: 400; /* 볼드체 지양 규칙 준수 */
         }
-      }
-    }
-  </script>
-  <style>
-    body {
-      background-color: #F3F5F8;
-      color: #0F172A;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #CBD5E1;
-      border-radius: 9999px;
-    }
-    .card-transition {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  </style>
+        /* 드래그 앤 드롭 활성화 효과 */
+        .drop-active {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+        /* iframe 컨테이너 크기 지정 */
+        .preview-iframe {
+            width: 100%;
+            height: calc(100vh - 180px);
+            border: none;
+        }
+    </style>
 </head>
-<body class="min-h-screen font-sans pb-12 antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <div class="max-w-md md:max-w-4xl mx-auto px-4 pt-6 pb-4">
-    <header class="mb-6">
-      <div class="flex items-start justify-between">
-        <div>
-          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-brand-lightBlue text-brand-blue mb-2 tracking-wide uppercase">
-            Architectural Exhibition
-          </span>
-          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-brand-textPrimary">
-            작은책상전시
-          </h1>
-          <p class="text-sm md:text-base font-semibold text-brand-blue mt-0.5">
-            Tiny Desk Exhibition
-          </p>
-        </div>
-        <div class="relative">
-          <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-brand-lime flex items-center justify-center shadow-md transform rotate-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand-textPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6 flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-brand-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
-          <input type="text" id="searchInput" placeholder="건축가 또는 사무소 검색..." 
-            class="w-full pl-10 pr-4 py-2.5 bg-white border border-brand-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all shadow-sm">
-        </div>
-        <div class="flex gap-2">
-          <button id="bookmarkFilterBtn" onclick="toggleBookmarkFilter()" 
-            class="px-4 py-2.5 rounded-xl border border-brand-border bg-white text-xs font-bold text-brand-textSecondary hover:bg-slate-50 flex items-center gap-1.5 transition-all shadow-sm">
-            <svg id="bookmarkFilterIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-            <span>북마크 (<span id="bookmarkCount">0</span>)</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4 custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-      <button onclick="filterDate('all')" class="date-tab active px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-brand-blue text-white shadow-sm" data-date="all">
-        전체 일정
-      </button>
-      <button onclick="filterDate('10월 31일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="10월 31일">
-        10/31 (토)
-      </button>
-      <button onclick="filterDate('11월 1일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 1일">
-        11/01 (일)
-      </button>
-      <button onclick="filterDate('11월 2일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 2일">
-        11/02 (월)
-      </button>
-      <button onclick="filterDate('11월 4일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 4일">
-        11/04 (수)
-      </button>
-      <button onclick="filterDate('11월 5일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 5일">
-        11/05 (목)
-      </button>
-      <button onclick="filterDate('11월 6일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 6일">
-        11/06 (금)
-      </button>
-      <button onclick="filterDate('11월 7일')" class="date-tab px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-white text-brand-textSecondary border border-brand-border hover:bg-slate-50" data-date="11월 7일">
-        11/07 (토)
-      </button>
-    </div>
-
-    <main id="timetableContainer" class="space-y-3">
-    </main>
-  </div>
-
-  <script>
-    const scheduleData = [
-      { id: 1, date: "10월 31일", time: "11:00 AM", office: "사사건건 건축사사무소", architect: "전중섭", link: "https://search.naver.com/search.naver?query=사사건건+건축사사무소" },
-      { id: 2, date: "10월 31일", time: "1:00 PM", office: "BCHO Partners", architect: "조병수", link: "https://www.bchoarchitects.com" },
-      { id: 3, date: "10월 31일", time: "1:00 PM", office: "CAC", architect: "정다영 + 김희정 + 정성규 + 곽승찬", link: "https://search.naver.com/search.naver?query=CAC+건축" },
-      { id: 4, date: "10월 31일", time: "2:00 PM", office: "다이아거날 써츠", architect: "김사라", link: "http://diagonalthoughts.com" },
-      { id: 5, date: "10월 31일", time: "2:00 PM", office: "(주)포머티브건축사사무소", architect: "고영성", link: "http://www.formative-architects.com" },
-      { id: 6, date: "10월 31일", time: "3:00 PM", office: "LIFE 건축사사무소", architect: "한지영 + 황수용", link: "https://lifearchitects.kr" },
-      { id: 7, date: "11월 1일", time: "11:00 AM", office: "(주)종합건축사사무소 시건축", architect: "류재은", link: "https://search.naver.com/search.naver?query=종합건축사사무소+시건축" },
-      { id: 8, date: "11월 1일", time: "11:00 AM", office: "드로잉웍스", architect: "김영배", link: "http://drawingworks.co.kr" },
-      { id: 9, date: "11월 1일", time: "1:00 PM", office: "(주)코어건축사사무소", architect: "유종수 + 김빈", link: "http://www.co-re.kr" },
-      { id: 10, date: "11월 1일", time: "1:00 PM", office: "(주)디아건축사사무소", architect: "정현아", link: "http://www.diachronic.co.kr" },
-      { id: 11, date: "11월 1일", time: "2:00 PM", office: "건축공방", architect: "박수정 + 심희준", link: "http://www.gongbang.in" },
-      { id: 12, date: "11월 1일", time: "3:00 PM", office: "문도호제", architect: "임태병", link: "https://search.naver.com/search.naver?query=문도호제" },
-      { id: 13, date: "11월 2일", time: "11:00 AM", office: "삶것건축사사무소", architect: "양수인", link: "http://lifethings.in" },
-      { id: 14, date: "11월 4일", time: "10:00 AM", office: "황두진건축사사무소", architect: "황두진", link: "http://www.doojinhwang.haebang.net" },
-      { id: 15, date: "11월 4일", time: "2:00 PM", office: "푸하하하프렌즈", architect: "윤한진 + 한승재 + 한양규", link: "http://fhhhfriends.com" },
-      { id: 16, date: "11월 5일", time: "1:00 PM", office: "솔토지빈건축사사무소", architect: "조남호", link: "http://www.soltozibin.com" },
-      { id: 17, date: "11월 5일", time: "2:30 PM", office: "오헤제 건축", architect: "이해든 + 최재필", link: "http://ohese.com" },
-      { id: 18, date: "11월 6일", time: "10:00 AM", office: "구보건축", architect: "조윤희 + 홍지학", link: "http://gubo.kr" },
-      { id: 19, date: "11월 6일", time: "1:00 PM", office: "운생동건축사사무소", architect: "장윤규 + 신창훈", link: "http://www.usdspace.com" },
-      { id: 20, date: "11월 6일", time: "1:00 PM", office: "마인드맵건축사사무소", architect: "최하영", link: "https://search.naver.com/search.naver?query=마인드맵건축사사무소" },
-      { id: 21, date: "11월 6일", time: "1:00 PM", office: "건축사사무소 김이홍아키텍츠", architect: "김이홍", link: "http://www.eehongkim.com" },
-      { id: 22, date: "11월 6일", time: "1:00 PM", office: "원오원 아키텍스", architect: "최욱", link: "http://www.101architects.com" },
-      { id: 23, date: "11월 6일", time: "3:00 PM", office: "일구구공 도시건축 건축사사무소(주)", architect: "윤근주 + 황정환", link: "http://1990ua.com" },
-      { id: 24, date: "11월 7일", time: "11:00 AM", office: "RoA architects", architect: "김경도", link: "http://roaarchitects.com" },
-      { id: 25, date: "11월 7일", time: "12:00 PM", office: "요앞건축사사무소", architect: "류인근 + 김도란 + 정상경", link: "http://yoap.kr" },
-      { id: 26, date: "11월 7일", time: "1:00 PM", office: "건축사사무소 서가", architect: "박혜선 + 오승현", link: "http://seoga.co.kr" },
-      { id: 27, date: "11월 7일", time: "1:00 PM", office: "제이파트너스 건축사사무소", architect: "배정현 폴 + 심은지", link: "https://search.naver.com/search.naver?query=제이파트너스+건축사사무소" },
-      { id: 28, date: "11월 7일", time: "1:00 PM", office: "낫낫아키텍츠", architect: "안호정", link: "https://search.naver.com/search.naver?query=낫낫아키텍츠" },
-      { id: 29, date: "11월 7일", time: "1:00 PM", office: "소수 건축사사무소", architect: "고석홍 + 김미희", link: "http://sosuam.com" },
-      { id: 30, date: "11월 7일", time: "2:00 PM", office: "에이코랩 건축사사무소", architect: "정이삭 + 홍진표", link: "http://a-colab.com" },
-      { id: 31, date: "11월 7일", time: "3:00 PM", office: "비건축사사무소", architect: "윤은주 + 오정근", link: "https://search.naver.com/search.naver?query=비건축사사무소" }
-    ];
-
-    let currentDateFilter = 'all';
-    let searchQuery = '';
-    let isOnlyBookmarked = false;
-    let bookmarks = JSON.parse(localStorage.getItem('tiny_desk_bookmarks') || '[]');
-
-    function updateBookmarkCount() {
-      document.getElementById('bookmarkCount').innerText = bookmarks.length;
-    }
-
-    function toggleBookmark(id) {
-      if (bookmarks.includes(id)) {
-        bookmarks = bookmarks.filter(item => item !== id);
-      } else {
-        bookmarks.push(id);
-      }
-      localStorage.setItem('tiny_desk_bookmarks', JSON.stringify(bookmarks));
-      updateBookmarkCount();
-      renderSchedule();
-    }
-
-    function toggleBookmarkFilter() {
-      isOnlyBookmarked = !isOnlyBookmarked;
-      const btn = document.getElementById('bookmarkFilterBtn');
-      const icon = document.getElementById('bookmarkFilterIcon');
-      
-      if (isOnlyBookmarked) {
-        btn.classList.add('bg-brand-blue', 'text-white', 'border-brand-blue');
-        btn.classList.remove('bg-white', 'text-brand-textSecondary', 'border-brand-border');
-        icon.classList.add('text-white');
-        icon.classList.remove('text-brand-textMuted');
-      } else {
-        btn.classList.remove('bg-brand-blue', 'text-white', 'border-brand-blue');
-        btn.classList.add('bg-white', 'text-brand-textSecondary', 'border-brand-border');
-        icon.classList.remove('text-white');
-        icon.classList.add('text-brand-textMuted');
-      }
-      renderSchedule();
-    }
-
-    function filterDate(date) {
-      currentDateFilter = date;
-      document.querySelectorAll('.date-tab').forEach(tab => {
-        if (tab.dataset.date === date) {
-          tab.classList.add('bg-brand-blue', 'text-white', 'shadow-sm');
-          tab.classList.remove('bg-white', 'text-brand-textSecondary', 'border', 'border-brand-border');
-        } else {
-          tab.classList.remove('bg-brand-blue', 'text-white', 'shadow-sm');
-          tab.classList.add('bg-white', 'text-brand-textSecondary', 'border', 'border-brand-border');
-        }
-      });
-      renderSchedule();
-    }
-
-    function renderSchedule() {
-      const container = document.getElementById('timetableContainer');
-      
-      const filtered = scheduleData.filter(item => {
-        const matchesDate = currentDateFilter === 'all' || item.date === currentDateFilter;
-        const matchesSearch = item.office.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                              item.architect.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesBookmark = !isOnlyBookmarked || bookmarks.includes(item.id);
-        return matchesDate && matchesSearch && matchesBookmark;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="bg-white rounded-2xl p-8 text-center border border-brand-border my-6">
-            <svg class="h-10 w-10 text-brand-textMuted mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-sm font-bold text-brand-textPrimary">검색 조건에 해당 세션이 없습니다.</p>
-            <p class="text-xs text-brand-textSecondary mt-1">다른 날짜 선택 또는 검색어를 확인해 주세요.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.map((item) => {
-        const isBookmarked = bookmarks.includes(item.id);
-        
-        const cardBgClass = isBookmarked ? 'bg-brand-darkCard text-white' : 'bg-white text-brand-textPrimary';
-        const officeColorClass = isBookmarked ? 'text-white' : 'text-brand-textPrimary';
-        const architectColorClass = isBookmarked ? 'text-slate-300' : 'text-brand-textSecondary';
-        const dateBadgeBgClass = isBookmarked ? 'bg-slate-800 text-sky-400' : 'bg-brand-lightBlue text-brand-blue';
-        const timeBadgeBgClass = isBookmarked ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700';
-        const linkBtnClass = isBookmarked 
-          ? 'bg-slate-800 text-white hover:bg-slate-700' 
-          : 'bg-slate-100 text-brand-textPrimary hover:bg-slate-200';
-        const bookmarkBtnClass = isBookmarked
-          ? 'bg-amber-400 text-brand-darkCard'
-          : 'bg-slate-100 text-slate-400 hover:text-amber-500 hover:bg-amber-50';
-
-        return `
-          <div class="card-transition ${cardBgClass} rounded-2xl p-4 md:p-5 border border-brand-border shadow-sm hover:shadow-md flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-2.5">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-xs font-extrabold px-2.5 py-1 rounded-md ${dateBadgeBgClass}">
-                    ${item.date}
-                  </span>
-                  <span class="text-xs font-bold px-2.5 py-1 rounded-md ${timeBadgeBgClass}">
-                    ${item.time}
-                  </span>
+    <!-- 상단 헤더 및 탭 네비게이션 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <i class="ph ph-globe-hemisphere-west text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg text-slate-900">웹 호스팅 & 뷰어 매니저</h1>
+                        <p class="text-xs text-slate-500">GitHub Pages 전용 HTML 라이브 매니저</p>
+                    </div>
                 </div>
 
-                <button onclick="toggleBookmark(${item.id})" class="p-2 rounded-xl transition-all ${bookmarkBtnClass}">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="${isBookmarked ? 'currentColor' : 'none'}" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                </button>
-              </div>
+                <!-- 탭 전환 버튼 -->
+                <nav class="flex space-x-2 bg-slate-100 p-1 rounded-xl">
+                    <button id="tab-upload-btn" onclick="switchTab('upload')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm">
+                        <i class="ph ph-upload-simple text-lg"></i>
+                        <span>업로드 및 설정</span>
+                    </button>
+                    <button id="tab-viewer-btn" onclick="switchTab('viewer')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900">
+                        <i class="ph ph-eye text-lg"></i>
+                        <span>최신 웹사이트 보기</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
 
-              <h2 class="text-base md:text-lg font-bold tracking-tight ${officeColorClass} mb-1">
-                ${item.office}
-              </h2>
-              <p class="text-xs md:text-sm font-medium ${architectColorClass} mb-4">
-                ${item.architect}
-              </p>
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- 탭 1: 업로드 및 관리 화면 -->
+        <section id="section-upload" class="space-y-6">
+            <!-- 드래그 앤 드롭 업로드 구역 -->
+            <div class="bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50/50 flex flex-col items-center justify-center min-h-[240px]">
+                    <div class="p-4 bg-blue-50 text-blue-500 rounded-full mb-4">
+                        <i class="ph ph-file-html text-4xl"></i>
+                    </div>
+                    <p class="text-base text-slate-700 mb-1">HTML 파일을 여기에 드래그 앤 드롭하세요</p>
+                    <p class="text-xs text-slate-400 mb-4">또는 컴퓨터에서 파일 선택 (.html, .htm 지원)</p>
+                    <input type="file" id="file-input" accept=".html,.htm" class="hidden">
+                    <button onclick="document.getElementById('file-input').click()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
+                        파일 탐색기 열기
+                    </button>
+                </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-100/10">
-              <a href="${item.link}" target="_blank" rel="noopener noreferrer" 
-                class="w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${linkBtnClass}">
-                <span>사무소 정보 / 웹사이트</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+            <!-- 현재 로드된 파일 상태 정보 카드 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="ph ph-article text-xl text-slate-600"></i>
+                        <h2 class="text-base text-slate-800">현재 저장된 웹사이트 정보</h2>
+                    </div>
+                    <span id="storage-type-badge" class="px-2.5 py-1 text-xs bg-slate-100 text-slate-600 rounded-full">로컬 저장소 활성화</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-4 text-sm">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">파일명</span>
+                        <span id="info-filename" class="text-slate-700">저장된 파일 없음</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">최종 업데이트 시간</span>
+                        <span id="info-updated" class="text-slate-700">-</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">파일 크기</span>
+                        <span id="info-size" class="text-slate-700">-</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 mt-6 pt-4 border-t border-slate-100">
+                    <button onclick="switchTab('viewer')" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm rounded-lg transition-colors flex items-center space-x-2">
+                        <i class="ph ph-play-circle text-lg"></i>
+                        <span>지금 사이트 확인하기</span>
+                    </button>
+                    <button onclick="clearStorageData()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 text-sm rounded-lg transition-colors flex items-center space-x-2">
+                        <i class="ph ph-trash text-lg"></i>
+                        <span>저장된 내용 삭제</span>
+                    </button>
+                </div>
             </div>
-          </div>
-        `;
-      }).join('');
-    }
 
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      searchQuery = e.target.value;
-      renderSchedule();
-    });
+            <!-- 구글 드라이브 연동 설정 아코디언 -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-6 cursor-pointer flex justify-between items-center bg-slate-50/50 hover:bg-slate-50 transition-colors" onclick="toggleDriveConfig()">
+                    <div class="flex items-center space-x-3">
+                        <i class="ph ph-google-drive-logo text-2xl text-emerald-600"></i>
+                        <div>
+                            <h3 class="text-sm text-slate-800">구글 드라이브 연동 (선택 사항)</h3>
+                            <p class="text-xs text-slate-500">대용량 파일이나 여러 디바이스 간 동기화가 필요한 경우 사용합니다.</p>
+                        </div>
+                    </div>
+                    <i id="drive-chevron" class="ph ph-caret-down text-lg text-slate-400 transition-transform duration-200"></i>
+                </div>
 
-    updateBookmarkCount();
-    renderSchedule();
-  </script>
+                <div id="drive-config-panel" class="hidden p-6 border-t border-slate-200 space-y-4">
+                    <div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-xs space-y-1">
+                        <p>구글 드라이브 API 설정 안내:</p>
+                        <p>1. Google Cloud Console에서 프로젝트를 생성하고 Google Drive API를 활성화하세요.</p>
+                        <p>2. OAuth 2.0 클라이언트 ID를 발급받은 후 아래 입력란에 넣고 연동을 진행할 수 있습니다.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-600 mb-1">Google API Client ID</label>
+                            <input type="text" id="gdrive-client-id" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-600 mb-1">Google API Key</label>
+                            <input type="password" id="gdrive-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex space-x-2 pt-2">
+                            <button onclick="saveDriveCredentials()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors">
+                                연동 정보 저장 및 연결
+                            </button>
+                            <button onclick="disconnectDrive()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm rounded-lg transition-colors">
+                                연동 해제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 2: 라이브 뷰어 화면 -->
+        <section id="section-viewer" class="hidden space-y-4">
+            <!-- 뷰어 상단 도구 모음 -->
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="inline-block w-3 h-3 bg-emerald-500 rounded-full"></span>
+                    <span class="text-xs text-slate-600">라이브 미리보기 모드</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="reloadIframe()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors" title="새로고침">
+                        <i class="ph ph-arrows-clockwise text-lg"></i>
+                    </button>
+                    <button onclick="openInNewTab()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors" title="새 창에서 열기">
+                        <i class="ph ph-arrow-square-out text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 라이브 렌더링 프레임 -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
+                <iframe id="live-frame" class="preview-iframe" title="라이브 웹사이트 미리보기"></iframe>
+                <div id="empty-state" class="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+                    <i class="ph ph-browser text-5xl text-slate-300 mb-3"></i>
+                    <p class="text-base text-slate-600 mb-1">표시할 웹사이트가 없습니다</p>
+                    <p class="text-xs text-slate-400 mb-4">업로드 탭으로 이동하여 HTML 파일을 올려주세요.</p>
+                    <button onclick="switchTab('upload')" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                        파일 업로드하러 가기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 커스텀 알림 모달 메시지 창 -->
+    <div id="toast-modal" class="fixed bottom-6 right-6 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none flex items-center space-x-2 z-50">
+        <i id="toast-icon" class="ph ph-check-circle text-lg text-emerald-400"></i>
+        <span id="toast-message">메시지 내용</span>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script>
+        // 상수 및 데이터 키 설정
+        const STORAGE_KEY_HTML = 'hosted_html_content';
+        const STORAGE_KEY_META = 'hosted_html_metadata';
+        const STORAGE_KEY_DRIVE = 'hosted_drive_credentials';
+
+        let currentHtmlContent = '';
+
+        // 초기화 함수
+        window.onload = function () {
+            setupDragAndDrop();
+            setupFileInput();
+            loadSavedData();
+        };
+
+        // 탭 전환 처리
+        function switchTab(tabName) {
+            const uploadTabBtn = document.getElementById('tab-upload-btn');
+            const viewerTabBtn = document.getElementById('tab-viewer-btn');
+            const uploadSection = document.getElementById('section-upload');
+            const viewerSection = document.getElementById('section-viewer');
+
+            if (tabName === 'upload') {
+                uploadTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm';
+                viewerTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900';
+                uploadSection.classList.remove('hidden');
+                viewerSection.classList.add('hidden');
+            } else {
+                viewerTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm';
+                uploadTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900';
+                viewerSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+                renderLiveViewer();
+            }
+        }
+
+        // 드래그 앤 드롭 이벤트 바인딩
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-active'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-active'), false);
+            });
+
+            dropZone.addEventListener('drop', handleDrop, false);
+        }
+
+        // 드롭 시 파일 처리
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        // 파일 탐색기 선택 처리
+        function setupFileInput() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', function () {
+                if (this.files.length > 0) {
+                    processFile(this.files[0]);
+                }
+            });
+        }
+
+        // 파일 읽기 및 저장
+        function processFile(file) {
+            if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+                showToast('HTML 파일만 업로드 가능합니다.', 'ph-warning');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const metadata = {
+                    filename: file.name,
+                    size: formatFileSize(file.size),
+                    updatedAt: new Date().toLocaleString('ko-KR')
+                };
+
+                try {
+                    localStorage.setItem(STORAGE_KEY_HTML, content);
+                    localStorage.setItem(STORAGE_KEY_META, JSON.stringify(metadata));
+                    currentHtmlContent = content;
+                    updateInfoUI(metadata);
+                    showToast('웹사이트가 정상적으로 업로드되었습니다.');
+                } catch (err) {
+                    showToast('용량이 커서 로컬 저장소에 저장하지 못했습니다.', 'ph-warning');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 로컬 저장소 데이터 로드
+        function loadSavedData() {
+            const metaRaw = localStorage.getItem(STORAGE_KEY_META);
+            const contentRaw = localStorage.getItem(STORAGE_KEY_HTML);
+
+            if (metaRaw && contentRaw) {
+                const metadata = JSON.parse(metaRaw);
+                currentHtmlContent = contentRaw;
+                updateInfoUI(metadata);
+            }
+        }
+
+        // 메타 정보 UI 업데이트
+        function updateInfoUI(meta) {
+            document.getElementById('info-filename').textContent = meta.filename;
+            document.getElementById('info-updated').textContent = meta.updatedAt;
+            document.getElementById('info-size').textContent = meta.size;
+        }
+
+        // 라이브 뷰어 렌더링
+        function renderLiveViewer() {
+            const iframe = document.getElementById('live-frame');
+            const emptyState = document.getElementById('empty-state');
+
+            if (currentHtmlContent && currentHtmlContent.trim() !== '') {
+                iframe.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                // srcdoc 속성을 이용하여 안전하게 HTML 렌더링
+                iframe.srcdoc = currentHtmlContent;
+            } else {
+                iframe.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        // 뷰어 새로고침
+        function reloadIframe() {
+            renderLiveViewer();
+            showToast('새로고침 되었습니다.');
+        }
+
+        // 새 탭에서 열기
+        function openInNewTab() {
+            if (!currentHtmlContent) {
+                showToast('열 수 있는 웹사이트 내용이 없습니다.', 'ph-warning');
+                return;
+            }
+            const blob = new Blob([currentHtmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        // 저장된 데이터 삭제
+        function clearStorageData() {
+            localStorage.removeItem(STORAGE_KEY_HTML);
+            localStorage.removeItem(STORAGE_KEY_META);
+            currentHtmlContent = '';
+            document.getElementById('info-filename').textContent = '저장된 파일 없음';
+            document.getElementById('info-updated').textContent = '-';
+            document.getElementById('info-size').textContent = '-';
+            showToast('저장된 웹사이트 내용이 삭제되었습니다.');
+        }
+
+        // 파일 크기 포맷 변환
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 구글 드라이브 패널 토글
+        function toggleDriveConfig() {
+            const panel = document.getElementById('drive-config-panel');
+            const chevron = document.getElementById('drive-chevron');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                panel.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // 구글 연동 정보 저장
+        function saveDriveCredentials() {
+            const clientId = document.getElementById('gdrive-client-id').value;
+            const apiKey = document.getElementById('gdrive-api-key').value;
+
+            if (!clientId) {
+                showToast('Client ID를 입력해주세요.', 'ph-warning');
+                return;
+            }
+
+            const driveData = { clientId, apiKey };
+            localStorage.setItem(STORAGE_KEY_DRIVE, JSON.stringify(driveData));
+            showToast('구글 드라이브 연동 설정이 저장되었습니다.');
+        }
+
+        // 구글 연동 해제
+        function disconnectDrive() {
+            localStorage.removeItem(STORAGE_KEY_DRIVE);
+            document.getElementById('gdrive-client-id').value = '';
+            document.getElementById('gdrive-api-key').value = '';
+            showToast('구글 드라이브 연동이 해제되었습니다.');
+        }
+
+        // 토스트 알림 표시 함수
+        function showToast(message, iconClass = 'ph-check-circle') {
+            const toast = document.getElementById('toast-modal');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.className = `ph ${iconClass} text-lg text-emerald-400`;
+
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
