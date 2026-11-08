@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹사이트 HTML 업로더 & 라이브 뷰어</title>
+    <title>웹사이트 라이브 뷰어 & 호스팅 매니저</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Phosphor Icons CDN -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* 글로벌 폰트 및 가독성 설정 */
+        /* 글로벌 폰트 및 스타일 */
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            font-weight: 400; /* 볼드체 지양 규칙 준수 */
+            font-weight: 400;
         }
-        /* 드래그 앤 드롭 활성화 효과 */
+        /* 드래그 앤 드롭 하이라이트 효과 */
         .drop-active {
             border-color: #3b82f6 !important;
             background-color: #eff6ff !important;
         }
-        /* iframe 컨테이너 크기 지정 */
+        /* 라이브 미리보기 iframe 크기 설정 */
         .preview-iframe {
             width: 100%;
-            height: calc(100vh - 180px);
+            height: calc(100vh - 160px);
             border: none;
         }
     </style>
@@ -30,28 +30,29 @@
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- 상단 헤더 및 탭 네비게이션 -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
+                <!-- 브랜드/로고 -->
                 <div class="flex items-center space-x-3">
                     <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
                         <i class="ph ph-globe-hemisphere-west text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg text-slate-900">웹 호스팅 & 뷰어 매니저</h1>
-                        <p class="text-xs text-slate-500">GitHub Pages 전용 HTML 라이브 매니저</p>
+                        <h1 class="text-base text-slate-900">내 라이브 웹사이트</h1>
+                        <p class="text-xs text-slate-500">GitHub Pages 브라우저 매니저</p>
                     </div>
                 </div>
 
-                <!-- 탭 전환 버튼 -->
-                <nav class="flex space-x-2 bg-slate-100 p-1 rounded-xl">
-                    <button id="tab-upload-btn" onclick="switchTab('upload')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm">
-                        <i class="ph ph-upload-simple text-lg"></i>
-                        <span>업로드 및 설정</span>
-                    </button>
-                    <button id="tab-viewer-btn" onclick="switchTab('viewer')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900">
+                <!-- 탭 메뉴 (최신 웹사이트 보기가 1번 기본 선택) -->
+                <nav class="flex space-x-1 bg-slate-100 p-1 rounded-xl">
+                    <button id="tab-viewer-btn" onclick="switchTab('viewer')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm">
                         <i class="ph ph-eye text-lg"></i>
                         <span>최신 웹사이트 보기</span>
+                    </button>
+                    <button id="tab-upload-btn" onclick="switchTab('upload')" class="flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900">
+                        <i class="ph ph-upload-simple text-lg"></i>
+                        <span>파일 업로드 및 설정</span>
                     </button>
                 </nav>
             </div>
@@ -61,52 +62,98 @@
     <!-- 메인 콘텐츠 영역 -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
-        <!-- 탭 1: 업로드 및 관리 화면 -->
-        <section id="section-upload" class="space-y-6">
-            <!-- 드래그 앤 드롭 업로드 구역 -->
-            <div class="bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
-                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50/50 flex flex-col items-center justify-center min-h-[240px]">
-                    <div class="p-4 bg-blue-50 text-blue-500 rounded-full mb-4">
-                        <i class="ph ph-file-html text-4xl"></i>
-                    </div>
-                    <p class="text-base text-slate-700 mb-1">HTML 파일을 여기에 드래그 앤 드롭하세요</p>
-                    <p class="text-xs text-slate-400 mb-4">또는 컴퓨터에서 파일 선택 (.html, .htm 지원)</p>
-                    <input type="file" id="file-input" accept=".html,.htm" class="hidden">
-                    <button onclick="document.getElementById('file-input').click()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
-                        파일 탐색기 열기
+        <!-- 탭 1: 최신 웹사이트 보기 (기본 노출 화면) -->
+        <section id="section-viewer" class="space-y-4">
+            <!-- 뷰어 상단 상태바 및 컨트롤 -->
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span>라이브 동동 실행 중</span>
+                    </span>
+                    <span id="viewer-filename-badge" class="text-xs text-slate-500 hidden sm:inline-block"></span>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button onclick="reloadIframe()" class="flex items-center space-x-1 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i class="ph ph-arrows-clockwise text-sm"></i>
+                        <span>새로고침</span>
+                    </button>
+                    <button onclick="openInNewTab()" class="flex items-center space-x-1 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="ph ph-arrow-square-out text-sm"></i>
+                        <span>새 창에서 전체 화면으로 열기</span>
                     </button>
                 </div>
             </div>
 
-            <!-- 현재 로드된 파일 상태 정보 카드 -->
+            <!-- 라이브 웹사이트 표시 컨테이너 -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[550px] relative">
+                <iframe id="live-frame" class="preview-iframe hidden" title="최신 웹사이트 미리보기"></iframe>
+                
+                <!-- 업로드된 웹사이트가 없을 때 빈 화면 -->
+                <div id="empty-state" class="p-12 text-center flex flex-col items-center justify-center min-h-[500px]">
+                    <div class="p-4 bg-slate-100 text-slate-400 rounded-full mb-4">
+                        <i class="ph ph-browser text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg text-slate-700 mb-1">저장된 웹사이트가 없습니다</h3>
+                    <p class="text-xs text-slate-400 mb-6 max-w-sm">
+                        상단의 <strong>'파일 업로드 및 설정'</strong> 메뉴로 이동하여 변경하고자 하는 HTML 파일을 드래그 앤 드롭해 보세요.
+                    </p>
+                    <button onclick="switchTab('upload')" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors shadow-sm flex items-center space-x-2">
+                        <i class="ph ph-upload-simple text-lg"></i>
+                        <span>HTML 파일 업로드하러 가기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 2: 업로드 및 설정 화면 -->
+        <section id="section-upload" class="hidden space-y-6">
+            <!-- 드래그 앤 드롭 업로드 카드 -->
+            <div class="bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-base text-slate-800 mb-4">새 웹사이트 HTML 업로드</h2>
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50/50 flex flex-col items-center justify-center min-h-[220px]">
+                    <div class="p-4 bg-blue-50 text-blue-500 rounded-full mb-3">
+                        <i class="ph ph-cloud-arrow-up text-4xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-700 mb-1">여기에 새 HTML 파일을 드래그 앤 드롭하세요</p>
+                    <p class="text-xs text-slate-400 mb-4">또는 파일 탐색기에서 선택 (.html, .htm 지원)</p>
+                    <input type="file" id="file-input" accept=".html,.htm" class="hidden">
+                    <button onclick="document.getElementById('file-input').click()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
+                        컴퓨터에서 파일 선택
+                    </button>
+                </div>
+            </div>
+
+            <!-- 현재 적용된 사이트 정보 -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
-                        <i class="ph ph-article text-xl text-slate-600"></i>
-                        <h2 class="text-base text-slate-800">현재 저장된 웹사이트 정보</h2>
+                        <i class="ph ph-info text-xl text-slate-600"></i>
+                        <h2 class="text-base text-slate-800">현재 보이고 있는 웹사이트 상태</h2>
                     </div>
-                    <span id="storage-type-badge" class="px-2.5 py-1 text-xs bg-slate-100 text-slate-600 rounded-full">로컬 저장소 활성화</span>
+                    <span class="px-2.5 py-1 text-xs bg-slate-100 text-slate-600 rounded-full">로컬 브라우저 저장소</span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-4 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-100 pt-4 text-sm">
                     <div>
                         <span class="text-xs text-slate-400 block mb-1">파일명</span>
                         <span id="info-filename" class="text-slate-700">저장된 파일 없음</span>
                     </div>
                     <div>
-                        <span class="text-xs text-slate-400 block mb-1">최종 업데이트 시간</span>
+                        <span class="text-xs text-slate-400 block mb-1">최종 변경 일시</span>
                         <span id="info-updated" class="text-slate-700">-</span>
                     </div>
                     <div>
-                        <span class="text-xs text-slate-400 block mb-1">파일 크기</span>
+                        <span class="text-xs text-slate-400 block mb-1">파일 용량</span>
                         <span id="info-size" class="text-slate-700">-</span>
                     </div>
                 </div>
 
                 <div class="flex space-x-3 mt-6 pt-4 border-t border-slate-100">
                     <button onclick="switchTab('viewer')" class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm rounded-lg transition-colors flex items-center space-x-2">
-                        <i class="ph ph-play-circle text-lg"></i>
-                        <span>지금 사이트 확인하기</span>
+                        <i class="ph ph-eye text-lg"></i>
+                        <span>지금 적용된 사이트 보기</span>
                     </button>
                     <button onclick="clearStorageData()" class="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 text-sm rounded-lg transition-colors flex items-center space-x-2">
                         <i class="ph ph-trash text-lg"></i>
@@ -115,137 +162,96 @@
                 </div>
             </div>
 
-            <!-- 구글 드라이브 연동 설정 아코디언 -->
+            <!-- 구글 드라이브 연동 설정 카드 -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-6 cursor-pointer flex justify-between items-center bg-slate-50/50 hover:bg-slate-50 transition-colors" onclick="toggleDriveConfig()">
                     <div class="flex items-center space-x-3">
                         <i class="ph ph-google-drive-logo text-2xl text-emerald-600"></i>
                         <div>
-                            <h3 class="text-sm text-slate-800">구글 드라이브 연동 (선택 사항)</h3>
-                            <p class="text-xs text-slate-500">대용량 파일이나 여러 디바이스 간 동기화가 필요한 경우 사용합니다.</p>
+                            <h3 class="text-sm text-slate-800">구글 드라이브 연동 설정 (OAuth 2.0)</h3>
+                            <p class="text-xs text-slate-500">다른 디바이스와 자동 백업/동기화가 필요할 때 설정합니다.</p>
                         </div>
                     </div>
                     <i id="drive-chevron" class="ph ph-caret-down text-lg text-slate-400 transition-transform duration-200"></i>
                 </div>
 
                 <div id="drive-config-panel" class="hidden p-6 border-t border-slate-200 space-y-4">
-                    <div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-xs space-y-1">
-                        <p>구글 드라이브 API 설정 안내:</p>
-                        <p>1. Google Cloud Console에서 프로젝트를 생성하고 Google Drive API를 활성화하세요.</p>
-                        <p>2. OAuth 2.0 클라이언트 ID를 발급받은 후 아래 입력란에 넣고 연동을 진행할 수 있습니다.</p>
-                    </div>
-
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs text-slate-600 mb-1">Google API Client ID</label>
                             <input type="text" id="gdrive-client-id" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
                         </div>
-                        <div>
-                            <label class="block text-xs text-slate-600 mb-1">Google API Key</label>
-                            <input type="password" id="gdrive-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
-                        </div>
                         <div class="flex space-x-2 pt-2">
                             <button onclick="saveDriveCredentials()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg transition-colors">
-                                연동 정보 저장 및 연결
+                                연동 설정 저장
                             </button>
                             <button onclick="disconnectDrive()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm rounded-lg transition-colors">
-                                연동 해제
+                                설정 초기화
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 탭 2: 라이브 뷰어 화면 -->
-        <section id="section-viewer" class="hidden space-y-4">
-            <!-- 뷰어 상단 도구 모음 -->
-            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <span class="inline-block w-3 h-3 bg-emerald-500 rounded-full"></span>
-                    <span class="text-xs text-slate-600">라이브 미리보기 모드</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="reloadIframe()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors" title="새로고침">
-                        <i class="ph ph-arrows-clockwise text-lg"></i>
-                    </button>
-                    <button onclick="openInNewTab()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors" title="새 창에서 열기">
-                        <i class="ph ph-arrow-square-out text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 라이브 렌더링 프레임 -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
-                <iframe id="live-frame" class="preview-iframe" title="라이브 웹사이트 미리보기"></iframe>
-                <div id="empty-state" class="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
-                    <i class="ph ph-browser text-5xl text-slate-300 mb-3"></i>
-                    <p class="text-base text-slate-600 mb-1">표시할 웹사이트가 없습니다</p>
-                    <p class="text-xs text-slate-400 mb-4">업로드 탭으로 이동하여 HTML 파일을 올려주세요.</p>
-                    <button onclick="switchTab('upload')" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
-                        파일 업로드하러 가기
-                    </button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- 커스텀 알림 모달 메시지 창 -->
+    <!-- 알림 메시지 모달 토스트 -->
     <div id="toast-modal" class="fixed bottom-6 right-6 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none flex items-center space-x-2 z-50">
         <i id="toast-icon" class="ph ph-check-circle text-lg text-emerald-400"></i>
-        <span id="toast-message">메시지 내용</span>
+        <span id="toast-message">알림 내용</span>
     </div>
 
     <!-- 스크립트 영역 -->
     <script>
-        // 상수 및 데이터 키 설정
         const STORAGE_KEY_HTML = 'hosted_html_content';
         const STORAGE_KEY_META = 'hosted_html_metadata';
         const STORAGE_KEY_DRIVE = 'hosted_drive_credentials';
 
         let currentHtmlContent = '';
 
-        // 초기화 함수
+        //페이지 시작 시 실행
         window.onload = function () {
             setupDragAndDrop();
             setupFileInput();
             loadSavedData();
+            loadDriveCredentials();
+            
+            // 접속 시 무조건 '최신 웹사이트 보기' 탭을 첫 화면으로 렌더링
+            switchTab('viewer');
         };
 
-        // 탭 전환 처리
+        // 탭 전환 제어 함수
         function switchTab(tabName) {
-            const uploadTabBtn = document.getElementById('tab-upload-btn');
             const viewerTabBtn = document.getElementById('tab-viewer-btn');
-            const uploadSection = document.getElementById('section-upload');
+            const uploadTabBtn = document.getElementById('tab-upload-btn');
             const viewerSection = document.getElementById('section-viewer');
+            const uploadSection = document.getElementById('section-upload');
 
-            if (tabName === 'upload') {
-                uploadTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm';
-                viewerTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900';
-                uploadSection.classList.remove('hidden');
-                viewerSection.classList.add('hidden');
-            } else {
+            if (tabName === 'viewer') {
                 viewerTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm';
                 uploadTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900';
                 viewerSection.classList.remove('hidden');
                 uploadSection.classList.add('hidden');
                 renderLiveViewer();
+            } else {
+                uploadTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 bg-white text-blue-600 shadow-sm';
+                viewerTabBtn.className = 'flex items-center space-x-2 px-4 py-2 text-sm rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900';
+                uploadSection.classList.remove('hidden');
+                viewerSection.classList.add('hidden');
             }
         }
 
-        // 드래그 앤 드롭 이벤트 바인딩
+        // 드래그 앤 드롭 바인딩
         function setupDragAndDrop() {
             const dropZone = document.getElementById('drop-zone');
 
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
             });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
 
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropZone.addEventListener(eventName, () => dropZone.classList.add('drop-active'), false);
@@ -255,32 +261,24 @@
                 dropZone.addEventListener(eventName, () => dropZone.classList.remove('drop-active'), false);
             });
 
-            dropZone.addEventListener('drop', handleDrop, false);
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) processFile(files[0]);
+            }, false);
         }
 
-        // 드롭 시 파일 처리
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                processFile(files[0]);
-            }
-        }
-
-        // 파일 탐색기 선택 처리
+        // 파일 선택 탐색기 이벤트
         function setupFileInput() {
             const fileInput = document.getElementById('file-input');
             fileInput.addEventListener('change', function () {
-                if (this.files.length > 0) {
-                    processFile(this.files[0]);
-                }
+                if (this.files.length > 0) processFile(this.files[0]);
             });
         }
 
-        // 파일 읽기 및 저장
+        // HTML 파일 파일 읽기 및 로컬 저장
         function processFile(file) {
             if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
-                showToast('HTML 파일만 업로드 가능합니다.', 'ph-warning');
+                showToast('HTML 파일만 업로드할 수 있습니다.', 'ph-warning');
                 return;
             }
 
@@ -298,15 +296,18 @@
                     localStorage.setItem(STORAGE_KEY_META, JSON.stringify(metadata));
                     currentHtmlContent = content;
                     updateInfoUI(metadata);
-                    showToast('웹사이트가 정상적으로 업로드되었습니다.');
+                    showToast('웹사이트가 업로드되었습니다! 최신 화면으로 이동합니다.');
+                    
+                    // 업로드 성공 후 즉시 최신 웹사이트 보기 화면으로 자동 전환
+                    setTimeout(() => switchTab('viewer'), 800);
                 } catch (err) {
-                    showToast('용량이 커서 로컬 저장소에 저장하지 못했습니다.', 'ph-warning');
+                    showToast('용량이 너무 커서 브라우저에 저장하지 못했습니다.', 'ph-warning');
                 }
             };
             reader.readAsText(file);
         }
 
-        // 로컬 저장소 데이터 로드
+        // 저장된 설정 데이터 가져오기
         function loadSavedData() {
             const metaRaw = localStorage.getItem(STORAGE_KEY_META);
             const contentRaw = localStorage.getItem(STORAGE_KEY_HTML);
@@ -318,14 +319,15 @@
             }
         }
 
-        // 메타 정보 UI 업데이트
+        // 정보 표기 업데이트
         function updateInfoUI(meta) {
             document.getElementById('info-filename').textContent = meta.filename;
             document.getElementById('info-updated').textContent = meta.updatedAt;
             document.getElementById('info-size').textContent = meta.size;
+            document.getElementById('viewer-filename-badge').textContent = `(파일: ${meta.filename})`;
         }
 
-        // 라이브 뷰어 렌더링
+        // 라이브 미리보기 렌더링
         function renderLiveViewer() {
             const iframe = document.getElementById('live-frame');
             const emptyState = document.getElementById('empty-state');
@@ -333,8 +335,6 @@
             if (currentHtmlContent && currentHtmlContent.trim() !== '') {
                 iframe.classList.remove('hidden');
                 emptyState.classList.add('hidden');
-                
-                // srcdoc 속성을 이용하여 안전하게 HTML 렌더링
                 iframe.srcdoc = currentHtmlContent;
             } else {
                 iframe.classList.add('hidden');
@@ -342,10 +342,10 @@
             }
         }
 
-        // 뷰어 새로고침
+        // 새로고침 처리
         function reloadIframe() {
             renderLiveViewer();
-            showToast('새로고침 되었습니다.');
+            showToast('웹사이트를 새로고침했습니다.');
         }
 
         // 새 탭에서 열기
@@ -367,19 +367,41 @@
             document.getElementById('info-filename').textContent = '저장된 파일 없음';
             document.getElementById('info-updated').textContent = '-';
             document.getElementById('info-size').textContent = '-';
+            document.getElementById('viewer-filename-badge').textContent = '';
+            renderLiveViewer();
             showToast('저장된 웹사이트 내용이 삭제되었습니다.');
         }
 
-        // 파일 크기 포맷 변환
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        // 구글 연동 정보 로드
+        function loadDriveCredentials() {
+            const driveRaw = localStorage.getItem(STORAGE_KEY_DRIVE);
+            if (driveRaw) {
+                const driveData = JSON.parse(driveRaw);
+                if (driveData.clientId) {
+                    document.getElementById('gdrive-client-id').value = driveData.clientId;
+                }
+            }
         }
 
-        // 구글 드라이브 패널 토글
+        // 구글 연동 정보 저장
+        function saveDriveCredentials() {
+            const clientId = document.getElementById('gdrive-client-id').value.trim();
+            if (!clientId) {
+                showToast('Client ID를 입력해주세요.', 'ph-warning');
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY_DRIVE, JSON.stringify({ clientId }));
+            showToast('구글 클라이언트 ID가 저장되었습니다.');
+        }
+
+        // 구글 연동 해제
+        function disconnectDrive() {
+            localStorage.removeItem(STORAGE_KEY_DRIVE);
+            document.getElementById('gdrive-client-id').value = '';
+            showToast('연동 설정이 초기화되었습니다.');
+        }
+
+        // 구글 드라이브 설정 창 토글
         function toggleDriveConfig() {
             const panel = document.getElementById('drive-config-panel');
             const chevron = document.getElementById('drive-chevron');
@@ -392,30 +414,16 @@
             }
         }
 
-        // 구글 연동 정보 저장
-        function saveDriveCredentials() {
-            const clientId = document.getElementById('gdrive-client-id').value;
-            const apiKey = document.getElementById('gdrive-api-key').value;
-
-            if (!clientId) {
-                showToast('Client ID를 입력해주세요.', 'ph-warning');
-                return;
-            }
-
-            const driveData = { clientId, apiKey };
-            localStorage.setItem(STORAGE_KEY_DRIVE, JSON.stringify(driveData));
-            showToast('구글 드라이브 연동 설정이 저장되었습니다.');
+        // 파일 용량 단위 포맷
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // 구글 연동 해제
-        function disconnectDrive() {
-            localStorage.removeItem(STORAGE_KEY_DRIVE);
-            document.getElementById('gdrive-client-id').value = '';
-            document.getElementById('gdrive-api-key').value = '';
-            showToast('구글 드라이브 연동이 해제되었습니다.');
-        }
-
-        // 토스트 알림 표시 함수
+        // 토스트 메시지 안내
         function showToast(message, iconClass = 'ph-check-circle') {
             const toast = document.getElementById('toast-modal');
             const toastMsg = document.getElementById('toast-message');
